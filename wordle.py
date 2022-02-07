@@ -6,10 +6,12 @@ import inquirer
 
 
 def read_dictionary_file(path: str = "./data/dictionary.txt") -> List[str]:
+    tmp: List[str] = []
     with open(path, "r") as f:
         for line in f.readlines():
             word: str = line.replace("\n", "")
-            yield word
+            tmp.append(word)
+    return tmp
 
 
 words: List[str] = read_dictionary_file()
@@ -30,20 +32,24 @@ def clean(s: str) -> str:
     )
 
     # truncate the guess to the maximum allowed number of letters
-    return cleaned_string[:max_length]
+    return cleaned_string[:max_length].upper()
 
 
 def validate_guess(s: str) -> bool:
+    print([w for w in words])
     if len(s) != 5:
+        print(f"Bad guess: {s} (not five letters long")
         return False
 
     if s not in words:
+        print(f"Bad guess: {s} (not in dictionary)")
         return False
 
     return True
 
 
 if __name__ == "__main__":
+    # get the first guess
     valid: bool = False
     guess: str = ""
     while not valid:
@@ -53,4 +59,4 @@ if __name__ == "__main__":
         guess: str = clean(answers["name"])
         valid = validate_guess(guess)
 
-    print(f"{guess=}")
+    print(f"First {guess=}")
