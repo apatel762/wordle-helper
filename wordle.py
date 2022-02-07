@@ -56,6 +56,7 @@ if __name__ == "__main__":
     print(f"{guess=}")
 
     is_valid: bool = False
+    result: str = ""
     while not is_valid:
         answers = inquirer.prompt([inquirer.Text("result", message="result")])
         result: str = clean(answers["result"], whitelisted_chars="_ yg")
@@ -65,3 +66,10 @@ if __name__ == "__main__":
     # show the top 10 most likely guesses based on the information we have
     #   need to find a list of the most common english 5-letter words from somewhere
     # rinse and repeat
+    for index, letter in enumerate(guess):
+        if result[index] in (" ", "_"):
+            print(f"{letter} is not in the secret word.")
+        elif result[index] == "Y":
+            print(f"{letter} is in the word, but not in the spot that you guessed")
+        elif result[index] == "G":
+            print(f"{letter} is in the correct spot!")
