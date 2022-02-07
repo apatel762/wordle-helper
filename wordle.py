@@ -49,6 +49,25 @@ YELLOW = "Y"
 GREEN = "G"
 
 
+def map_result_to_emoji(result_char: str) -> str:
+    if len(result_char) != 1:
+        raise RuntimeError("expected result char to be a single char")
+
+    if result_char == INCORRECT:
+        return "⬛"
+    elif result_char == YELLOW:
+        return "🟨"
+    elif result_char == GREEN:
+        return "🟩"
+
+
+def beautify_results(r: str) -> str:
+    """
+    r = result
+    """
+    return "".join([map_result_to_emoji(c) for c in r])
+
+
 if __name__ == "__main__":
     number_of_guesses: int = 0
     is_valid: bool = False
@@ -58,8 +77,6 @@ if __name__ == "__main__":
         guess: str = clean(answers["name"])
         is_valid = validate_guess(guess)
 
-    print(f"{guess=}")
-
     is_valid: bool = False
     result: str = ""
     while not is_valid:
@@ -67,14 +84,12 @@ if __name__ == "__main__":
         result: str = clean(answers["result"], whitelisted_chars=" yg")
         is_valid = validate_guess(result, check_dictionary=False)
 
+    # pretty-print the current guess & result
+    print("")
+    print(guess)
+    print(beautify_results(r=result))
+
     # filter the dictionary down based on what was revealed
     # show the top 10 most likely guesses based on the information we have
     #   need to find a list of the most common english 5-letter words from somewhere
     # rinse and repeat
-    for letter, colour in zip(guess, result):
-        if colour == INCORRECT:
-            print(f"{letter} is not in the secret word.")
-        elif colour == YELLOW:
-            print(f"{letter} is in the word, but not in the spot that you guessed")
-        elif colour == GREEN:
-            print(f"{letter} is in the correct spot!")
