@@ -62,4 +62,6 @@ if __name__ == "__main__":
         is_valid = validate_guess(result, check_dictionary=False)
 
     # filter the dictionary down based on what was revealed
-    # rinse and repeat somehow
+    # show the top 10 most likely guesses based on the information we have
+    #   need to find a list of the most common english 5-letter words from somewhere
+    # rinse and repeat
