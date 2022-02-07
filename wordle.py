@@ -44,6 +44,11 @@ def validate_guess(s: str, check_dictionary: bool = True) -> bool:
     return True
 
 
+INCORRECT = " "
+YELLOW = "Y"
+GREEN = "G"
+
+
 if __name__ == "__main__":
     number_of_guesses: int = 0
     is_valid: bool = False
@@ -59,17 +64,17 @@ if __name__ == "__main__":
     result: str = ""
     while not is_valid:
         answers = inquirer.prompt([inquirer.Text("result", message="result")])
-        result: str = clean(answers["result"], whitelisted_chars="_ yg")
+        result: str = clean(answers["result"], whitelisted_chars=" yg")
         is_valid = validate_guess(result, check_dictionary=False)
 
     # filter the dictionary down based on what was revealed
     # show the top 10 most likely guesses based on the information we have
     #   need to find a list of the most common english 5-letter words from somewhere
     # rinse and repeat
-    for index, letter in enumerate(guess):
-        if result[index] in (" ", "_"):
+    for letter, colour in zip(guess, result):
+        if colour == INCORRECT:
             print(f"{letter} is not in the secret word.")
-        elif result[index] == "Y":
+        elif colour == YELLOW:
             print(f"{letter} is in the word, but not in the spot that you guessed")
-        elif result[index] == "G":
+        elif colour == GREEN:
             print(f"{letter} is in the correct spot!")
