@@ -2,7 +2,7 @@ all: \
 	install
 
 clean:
-	@echo "no-op"
+	rm -rf ./venv
 
 install:
 	@./install.sh
