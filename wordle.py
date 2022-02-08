@@ -89,7 +89,7 @@ def filter_dictionary(
     return dictionary
 
 
-def get_most_frequent_words(
+def pretty_print_most_frequent_words(
     dictionary_of_words_with_frequencies: dict[str, float], limit: int = 10
 ) -> List[str]:
     sorted_dict: dict[str, float] = dict(
@@ -104,36 +104,50 @@ def get_most_frequent_words(
 
 
 if __name__ == "__main__":
-    # number_of_guesses: int = 0
-    is_valid: bool = False
-    guess: str = ""
-    while not is_valid:
-        answers = inquirer.prompt([inquirer.Text("name", message="guess")])
-        guess: str = clean(answers["name"])
-        is_valid = validate_guess(guess)
+    number_of_guesses: int = 1
+    guesses_so_far: dict[str, str] = {}
+    while number_of_guesses < 6:
+        is_valid: bool = False
+        guess: str = ""
+        while not is_valid:
+            answers = inquirer.prompt(
+                [inquirer.Text("name", message="What's your guess?")]
+            )
+            guess: str = clean(answers["name"])
+            is_valid = validate_guess(guess)
 
-    is_valid: bool = False
-    result: str = ""
-    while not is_valid:
-        answers = inquirer.prompt([inquirer.Text("result", message="result")])
-        result: str = clean(answers["result"], whitelisted_chars=ALLOWED_RESULTS_CHARS)
-        is_valid = validate_guess(result, check_dictionary=False)
+        is_valid: bool = False
+        result: str = ""
+        while not is_valid:
+            answers = inquirer.prompt(
+                [inquirer.Text("result", message="What was the result?")]
+            )
+            result: str = clean(
+                answers["result"], whitelisted_chars=ALLOWED_RESULTS_CHARS
+            )
+            is_valid = validate_guess(result, check_dictionary=False)
 
-    # pretty-print the current guess & result
-    print("")
-    print(f"{guess} -> {beautify_results(r=result)}")
+        # pretty-print the current guess & result
+        guesses_so_far[guess] = beautify_results(r=result)
+        if result == GREEN * 5:
+            print("")
+            print("Congratulations!")
+            print("")
+            print("Below are the guesses that you made:")
+            print("")
+            for guess, emoji_representation in guesses_so_far.items():
+                print(f"{guess} {emoji_representation}")
+            break
 
-    # filter the dictionary down based on what was revealed
-    # show the top 10 most likely guesses based on the information we have
-    #   need to find a list of the most common english 5-letter words from somewhere
-    # rinse and repeat
-    print("filtering results...")
-    print(f"before filtering: {len(words_with_frequencies)} results")
-    words_with_frequencies: dict[str, float] = filter_dictionary(
-        dictionary=words_with_frequencies, guessed_word=guess, guess_result=result
-    )
-    print(f"after filtering: {len(words_with_frequencies)} results")
+        words_with_frequencies: dict[str, float] = filter_dictionary(
+            dictionary=words_with_frequencies, guessed_word=guess, guess_result=result
+        )
 
-    print("pick one of the below words:")
-    print("")
-    words: List[str] = get_most_frequent_words(words_with_frequencies)
+        print("Try one of these words for your next guess:")
+        print("")
+        # todo: pretty-print the most frequent words
+        pretty_print_most_frequent_words(
+            dictionary_of_words_with_frequencies=words_with_frequencies
+        )
+
+        number_of_guesses += 1
