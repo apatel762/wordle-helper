@@ -1,3 +1,5 @@
+import itertools
+import json
 import string
 import unicodedata
 from typing import List
@@ -5,16 +7,14 @@ from typing import List
 import inquirer
 
 
-def read_dictionary_file(path: str = "./data/dictionary.txt") -> List[str]:
-    tmp: List[str] = []
+def read_dictionary_file(
+    path: str = "./data/dictionary_with_frequency.json",
+) -> dict[str, float]:
     with open(path, "r") as f:
-        for line in f.readlines():
-            word: str = line.replace("\n", "")
-            tmp.append(word)
-    return tmp
+        return json.load(f)
 
 
-words: List[str] = read_dictionary_file()
+words_with_frequencies: dict[str, float] = read_dictionary_file()
 
 
 def clean(s: str, whitelisted_chars: str = string.ascii_letters) -> str:
@@ -37,7 +37,7 @@ def validate_guess(s: str, check_dictionary: bool = True) -> bool:
         print(f"Bad guess: {s} (not five letters long)")
         return False
 
-    if check_dictionary and s not in words:
+    if check_dictionary and s not in words_with_frequencies:
         print(f"Bad guess: {s} (not in dictionary)")
         return False
 
@@ -70,9 +70,9 @@ def beautify_results(r: str) -> str:
     return "".join([map_result_to_emoji(c) for c in r])
 
 
-def filter_word_list(
-    word_list: List[str], guessed_word: str, guess_result: str
-) -> None:
+def filter_dictionary(
+    dictionary: dict[str, float], guessed_word: str, guess_result: str
+) -> dict[str, float]:
     if not validate_guess(s=guess_result, check_dictionary=False):
         raise RuntimeError("cannot filter dictionary with invalid guess result")
 
@@ -80,13 +80,27 @@ def filter_word_list(
         letter: str = pair[0]
         result: str = pair[1]
         if result == INCORRECT:
-            word_list = [w for w in word_list if letter not in w]
+            dictionary = {w: f for w, f in dictionary.items() if letter not in w}
         elif result == YELLOW:
-            word_list = [w for w in word_list if letter in w]
+            dictionary = {w: f for w, f in dictionary.items() if letter in w}
         elif result == GREEN:
-            word_list = [w for w in word_list if w[index] == letter]
+            dictionary = {w: f for w, f in dictionary.items() if w[index] == letter}
 
-    return word_list
+    return dictionary
+
+
+def get_most_frequent_words(
+    dictionary_of_words_with_frequencies: dict[str, float], limit: int = 10
+) -> List[str]:
+    sorted_dict: dict[str, float] = dict(
+        sorted(
+            dictionary_of_words_with_frequencies.items(),
+            key=lambda x: x[1],
+            reverse=True,
+        )
+    )
+    for word, freq in itertools.islice(sorted_dict.items(), limit):
+        print(f"{word} ({freq=})")
 
 
 if __name__ == "__main__":
@@ -107,14 +121,19 @@ if __name__ == "__main__":
 
     # pretty-print the current guess & result
     print("")
-    print(guess)
-    print(beautify_results(r=result))
+    print(f"{guess} -> {beautify_results(r=result)}")
 
     # filter the dictionary down based on what was revealed
     # show the top 10 most likely guesses based on the information we have
     #   need to find a list of the most common english 5-letter words from somewhere
     # rinse and repeat
     print("filtering results...")
-    words: List[str] = filter_word_list(
-        word_list=words, guessed_word=guess, guess_result=result
+    print(f"before filtering: {len(words_with_frequencies)} results")
+    words_with_frequencies: dict[str, float] = filter_dictionary(
+        dictionary=words_with_frequencies, guessed_word=guess, guess_result=result
     )
+    print(f"after filtering: {len(words_with_frequencies)} results")
+
+    print("pick one of the below words:")
+    print("")
+    words: List[str] = get_most_frequent_words(words_with_frequencies)
