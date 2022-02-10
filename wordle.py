@@ -100,7 +100,6 @@ def filter_dictionary(
     ):
         letter: str = pair[0]
         result: str = pair[1]
-        print(f"debug: {index=}, {letter=}, {result=}")
         if result == GREEN:
             # we got it correct!
             dictionary = {w: f for w, f in dictionary.items() if w[index] == letter}
