@@ -126,22 +126,27 @@ def filter_dictionary(
 def pretty_print_most_frequent_words(
     dictionary_of_words_with_frequencies: dict[str, float], limit: int = 10
 ) -> List[str]:
-    sorted_dict: dict[str, float] = dict(
-        sorted(
-            dictionary_of_words_with_frequencies.items(),
-            key=lambda x: x[1],
-            reverse=True,
-        )
+    sorted_dict_of_words_with_frequencies: dict[str, float] = itertools.islice(
+        dict(
+            sorted(
+                dictionary_of_words_with_frequencies.items(),
+                key=lambda x: x[1],
+                reverse=True,
+            )
+        ),
+        limit,
     )
-    for word, freq in itertools.islice(sorted_dict.items(), limit):
+    # todo: pretty-print the most frequent words
+
+    for word, freq in sorted_dict_of_words_with_frequencies:
         print(f"{word} ({freq=})")
 
 
 def show_tutorial_text() -> None:
     print(
-        """
-    HOW TO USE THIS SCRIPT
-    ======================
+        f"""
+    {'HOW TO USE THIS SCRIPT' : ^54}
+    {'======================' : ^54}
 
     Open up wordle @ https://www.powerlanguage.co.uk/wordle/
     and take your first guess.
@@ -164,7 +169,7 @@ def show_tutorial_text() -> None:
     )
 
 
-def get_long_line(line_character: str = "-", length: int = 72) -> str:
+def get_long_line(line_character: str = "-", length: int = 62) -> str:
     return line_character * length
 
 
@@ -180,13 +185,13 @@ if __name__ == "__main__":
     show_tutorial_text()
 
     number_of_guesses: int = 1
-    guesses_so_far: dict[str, str] = {}
+    guesses_so_far: List[str] = []
     while number_of_guesses <= 6:
         print_spacer_line()
 
         print_long_line()
-        print(f"GUESS NUMBER {number_of_guesses}")
-        print(get_long_line(line_character="~", length=14))
+        print(f"{f'GUESS NUMBER {number_of_guesses}': ^62}")
+        print(f"{get_long_line(line_character='~', length=14) : ^62}")
         print_spacer_line()
         is_valid: bool = False
         guess: str = ""
@@ -202,21 +207,15 @@ if __name__ == "__main__":
             )
             is_valid = validate_guess(result, check_dictionary=False)
 
-        guesses_so_far[guess] = beautify_results(r=result)
+        guesses_so_far.append(beautify_results(r=result))
         # if the guess is correct, end the script here and dump all
         # guesses and results
         if result == GREEN * 5:
             print_spacer_line()
-            print("Congratulations!")
-            print_spacer_line()
             print(f"Wordle {number_of_guesses}/6")
             print_spacer_line()
-            for _, emoji_representation in guesses_so_far.items():
-                print(f"{emoji_representation}")
-            print_spacer_line()
-            print("Your guesses were:")
-            for guess, _ in guesses_so_far.items():
-                print(f"{guess}")
+            for emoji_representation_of_guess in guesses_so_far:
+                print(f"{emoji_representation_of_guess}")
             break
 
         words_with_frequencies: dict[str, float] = filter_dictionary(
@@ -226,7 +225,6 @@ if __name__ == "__main__":
         print_spacer_line()
         print("Try one of these words for your next guess:")
         print_spacer_line()
-        # todo: pretty-print the most frequent words
         pretty_print_most_frequent_words(
             dictionary_of_words_with_frequencies=words_with_frequencies
         )
@@ -234,12 +232,6 @@ if __name__ == "__main__":
         number_of_guesses += 1
     else:
         print_spacer_line()
-        print("Sorry! You ran out of guesses.")
-        print_spacer_line()
         print("Wordle X/6")
-        for _, emoji_representation in guesses_so_far.items():
-            print(f"{emoji_representation}")
-        print_spacer_line()
-        print("Your guesses were:")
-        for guess, _ in guesses_so_far.items():
-            print(f"{guess}")
+        for emoji_representation_of_guess in guesses_so_far:
+            print(f"{emoji_representation_of_guess}")
