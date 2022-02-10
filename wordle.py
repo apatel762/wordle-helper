@@ -83,7 +83,7 @@ def filter_dictionary(
             # letter is not in the word
             dictionary = {w: f for w, f in dictionary.items() if letter not in w}
         elif result == YELLOW:
-            # letter is in the word, but in a different position to where we guessed it would be
+            # letter is in the word, but in a different position to where we guessed
             dictionary = {
                 w: f
                 for w, f in dictionary.items()
