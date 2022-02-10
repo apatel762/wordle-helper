@@ -140,8 +140,8 @@ def pretty_print_most_frequent_words(
 def show_tutorial_text() -> None:
     print(
         """
-    HOW TO USE THE WORDLE HELPER
-    ============================
+    HOW TO USE THIS SCRIPT
+    ======================
 
     Open up wordle @ https://www.powerlanguage.co.uk/wordle/
     and take your first guess.
@@ -202,16 +202,21 @@ if __name__ == "__main__":
             )
             is_valid = validate_guess(result, check_dictionary=False)
 
-        # pretty-print the current guess & result
         guesses_so_far[guess] = beautify_results(r=result)
+        # if the guess is correct, end the script here and dump all
+        # guesses and results
         if result == GREEN * 5:
             print_spacer_line()
             print("Congratulations!")
             print_spacer_line()
-            print("Below are the guesses that you made:")
+            print(f"Wordle {number_of_guesses}/6")
             print_spacer_line()
-            for guess, emoji_representation in guesses_so_far.items():
-                print(f"{guess} {emoji_representation}")
+            for _, emoji_representation in guesses_so_far.items():
+                print(f"{emoji_representation}")
+            print_spacer_line()
+            print("Your guesses were:")
+            for guess, _ in guesses_so_far.items():
+                print(f"{guess}")
             break
 
         words_with_frequencies: dict[str, float] = filter_dictionary(
@@ -230,3 +235,11 @@ if __name__ == "__main__":
     else:
         print_spacer_line()
         print("Sorry! You ran out of guesses.")
+        print_spacer_line()
+        print("Wordle X/6")
+        for _, emoji_representation in guesses_so_far.items():
+            print(f"{emoji_representation}")
+        print_spacer_line()
+        print("Your guesses were:")
+        for guess, _ in guesses_so_far.items():
+            print(f"{guess}")
