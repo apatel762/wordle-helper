@@ -70,18 +70,40 @@ def beautify_results(r: str) -> str:
     return "".join([map_result_to_emoji(c) for c in r])
 
 
+def get_result_value(result_char: int) -> int:
+    if result_char == GREEN:
+        return 0
+    if result_char == YELLOW:
+        return 1
+    if result_char == INCORRECT:
+        return 2
+
+    raise RuntimeError(f"cannot get result value for {result_char}")
+
+
 def filter_dictionary(
     dictionary: dict[str, float], guessed_word: str, guess_result: str
 ) -> dict[str, float]:
     if not validate_guess(s=guess_result, check_dictionary=False):
         raise RuntimeError("cannot filter dictionary with invalid guess result")
 
-    for index, pair in enumerate(zip(guessed_word, guess_result)):
+    # keep track of what we've seen so far
+    # this will stop us from filtering out letters that we've already
+    # confirmed to be correct in our previous guesses
+    seen: dict[str, str] = {}
+
+    for index, pair in sorted(
+        enumerate(zip(guessed_word, guess_result)),
+        key=lambda index_and_letter_result_pair: get_result_value(
+            index_and_letter_result_pair[1][1]
+        ),
+    ):
         letter: str = pair[0]
         result: str = pair[1]
-        if result == INCORRECT:
-            # letter is not in the word
-            dictionary = {w: f for w, f in dictionary.items() if letter not in w}
+        print(f"debug: {index=}, {letter=}, {result=}")
+        if result == GREEN:
+            # we got it correct!
+            dictionary = {w: f for w, f in dictionary.items() if w[index] == letter}
         elif result == YELLOW:
             # letter is in the word, but in a different position to where we guessed
             dictionary = {
@@ -89,9 +111,17 @@ def filter_dictionary(
                 for w, f in dictionary.items()
                 if letter in w and w[index] != letter
             }
-        elif result == GREEN:
-            # we got it correct!
-            dictionary = {w: f for w, f in dictionary.items() if w[index] == letter}
+        elif result == INCORRECT:
+            # only filter out words containing this letter if we have not already
+            # confirmed that it's in the word
+            if letter in seen.keys() and seen[letter] in (YELLOW, GREEN):
+                dictionary = {w: f for w, f in dictionary.items() if w[index] != letter}
+            else:
+                # letter is not in the word
+                dictionary = {w: f for w, f in dictionary.items() if letter not in w}
+
+        if letter not in seen.keys():
+            seen[letter] = result
 
     return dictionary
 
@@ -113,7 +143,7 @@ def pretty_print_most_frequent_words(
 if __name__ == "__main__":
     number_of_guesses: int = 1
     guesses_so_far: dict[str, str] = {}
-    while number_of_guesses < 6:
+    while number_of_guesses <= 6:
         is_valid: bool = False
         guess: str = ""
         while not is_valid:
@@ -158,3 +188,6 @@ if __name__ == "__main__":
         )
 
         number_of_guesses += 1
+
+    print("")
+    print("Sorry! You ran out of guesses.")
