@@ -188,6 +188,6 @@ if __name__ == "__main__":
         )
 
         number_of_guesses += 1
-
-    print("")
-    print("Sorry! You ran out of guesses.")
+    else:
+        print("")
+        print("Sorry! You ran out of guesses.")
