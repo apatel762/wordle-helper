@@ -80,10 +80,17 @@ def filter_dictionary(
         letter: str = pair[0]
         result: str = pair[1]
         if result == INCORRECT:
+            # letter is not in the word
             dictionary = {w: f for w, f in dictionary.items() if letter not in w}
         elif result == YELLOW:
-            dictionary = {w: f for w, f in dictionary.items() if letter in w}
+            # letter is in the word, but in a different position to where we guessed it would be
+            dictionary = {
+                w: f
+                for w, f in dictionary.items()
+                if letter in w and w[index] != letter
+            }
         elif result == GREEN:
+            # we got it correct!
             dictionary = {w: f for w, f in dictionary.items() if w[index] == letter}
 
     return dictionary
