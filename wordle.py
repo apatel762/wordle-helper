@@ -4,8 +4,6 @@ import string
 import unicodedata
 from typing import List
 
-import inquirer
-
 
 def read_dictionary_file(
     path: str = "./data/dictionary_with_frequency.json",
@@ -44,7 +42,7 @@ def validate_guess(s: str, check_dictionary: bool = True) -> bool:
     return True
 
 
-INCORRECT: str = " "
+INCORRECT: str = "_"
 YELLOW: str = "Y"
 GREEN: str = "G"
 
@@ -139,38 +137,79 @@ def pretty_print_most_frequent_words(
         print(f"{word} ({freq=})")
 
 
+def show_tutorial_text() -> None:
+    print(
+        """
+    HOW TO USE THE WORDLE HELPER
+    ============================
+
+    Open up wordle @ https://www.powerlanguage.co.uk/wordle/
+    and take your first guess.
+
+    Once you can see the result of your guess, enter it below
+    and after that, you'll be prompted to enter the result of
+    the guess - do that as well.
+
+    The result be a string of five letters representing the
+    answer, see examples below:
+
+    🟩⬛⬛🟨⬛ = g__y_
+    ⬛🟨⬛🟩🟩 = _y_gg
+    🟩🟩🟩🟩🟩 = ggggg
+
+    etc.
+
+    Have fun!
+    """
+    )
+
+
+def get_long_line(line_character: str = "-", length: int = 72) -> str:
+    return line_character * length
+
+
+def print_long_line() -> None:
+    print(get_long_line())
+
+
+def print_spacer_line() -> None:
+    print("")
+
+
 if __name__ == "__main__":
+    show_tutorial_text()
+
     number_of_guesses: int = 1
     guesses_so_far: dict[str, str] = {}
     while number_of_guesses <= 6:
+        print_spacer_line()
+
+        print_long_line()
+        print(f"GUESS NUMBER {number_of_guesses}")
+        print(get_long_line(line_character="~", length=14))
+        print_spacer_line()
         is_valid: bool = False
         guess: str = ""
         while not is_valid:
-            answers = inquirer.prompt(
-                [inquirer.Text("name", message="What's your guess?")]
-            )
-            guess: str = clean(answers["name"])
+            guess: str = clean(input("Enter your guess> "))
             is_valid = validate_guess(guess)
 
         is_valid: bool = False
         result: str = ""
         while not is_valid:
-            answers = inquirer.prompt(
-                [inquirer.Text("result", message="What was the result?")]
-            )
             result: str = clean(
-                answers["result"], whitelisted_chars=ALLOWED_RESULTS_CHARS
+                input("Enter the result> "), whitelisted_chars=ALLOWED_RESULTS_CHARS
             )
             is_valid = validate_guess(result, check_dictionary=False)
 
         # pretty-print the current guess & result
         guesses_so_far[guess] = beautify_results(r=result)
         if result == GREEN * 5:
-            print("")
+            print_spacer_line()
             print("Congratulations!")
-            print("")
+            print_spacer_line()
             print("Below are the guesses that you made:")
-            print("")
+            print_spacer_line()
             for guess, emoji_representation in guesses_so_far.items():
                 print(f"{guess} {emoji_representation}")
             break
@@ -179,8 +218,9 @@ if __name__ == "__main__":
             dictionary=words_with_frequencies, guessed_word=guess, guess_result=result
         )
 
+        print_spacer_line()
         print("Try one of these words for your next guess:")
-        print("")
+        print_spacer_line()
         # todo: pretty-print the most frequent words
         pretty_print_most_frequent_words(
             dictionary_of_words_with_frequencies=words_with_frequencies
@@ -188,5 +228,5 @@ if __name__ == "__main__":
 
         number_of_guesses += 1
     else:
-        print("")
+        print_spacer_line()
         print("Sorry! You ran out of guesses.")
