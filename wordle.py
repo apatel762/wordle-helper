@@ -126,20 +126,22 @@ def filter_dictionary(
 def pretty_print_most_frequent_words(
     dictionary_of_words_with_frequencies: dict[str, float], limit: int = 10
 ) -> List[str]:
-    sorted_dict_of_words_with_frequencies: dict[str, float] = itertools.islice(
-        dict(
-            sorted(
-                dictionary_of_words_with_frequencies.items(),
-                key=lambda x: x[1],
-                reverse=True,
-            )
-        ),
-        limit,
-    )
-    # todo: pretty-print the most frequent words
+    if len(dictionary_of_words_with_frequencies) == 0:
+        raise RuntimeError("There are no more words left in the dictionary!")
 
-    for word, freq in sorted_dict_of_words_with_frequencies:
-        print(f"{word} ({freq=})")
+    # ensure that the words dictionary has the words that are most frequently
+    # used in the English language at the beginning, so that they get displayed
+    # first when we slice the dictionary below
+    sorted_dict: dict[str, float] = dict(
+        sorted(
+            dictionary_of_words_with_frequencies.items(),
+            key=lambda x: x[1],
+            reverse=True,
+        )
+    )
+
+    for word, _ in itertools.islice(sorted_dict.items(), limit):
+        print(f"{word : ^10}")
 
 
 def show_tutorial_text() -> None:
