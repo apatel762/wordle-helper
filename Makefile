@@ -1,5 +1,9 @@
 all: \
-	install
+	install \
+	run
+
+run:
+	venv/bin/python wordle.py
 
 clean:
 	rm -rf ./venv

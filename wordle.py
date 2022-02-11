@@ -150,7 +150,10 @@ def show_tutorial_text() -> None:
     {'HOW TO USE THIS SCRIPT' : ^54}
     {'======================' : ^54}
 
-    Open up wordle @ https://www.powerlanguage.co.uk/wordle/
+    Open up wordle at:
+
+        https://www.nytimes.com/games/wordle/index.html
+
     and take your first guess.
 
     Once you can see the result of your guess, enter it below
