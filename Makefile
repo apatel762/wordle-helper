@@ -1,6 +1,4 @@
-all: \
-	install \
-	run
+all: install
 
 run:
 	venv/bin/python wordle.py
